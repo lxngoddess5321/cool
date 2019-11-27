@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    我的虚拟机
+{% endblock title %}
+
+{% block head %}
+    {% load static %}
+{#    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">#}
+    <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+{% endblock head %}
+
+{% block js %}
+{#    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>#}
+    <script type='text/javascript' src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+{% endblock js %}
+
+{% block body %}
+    <div class="container-fluid">
+        <br><h2 style="color: #666666">我的虚拟机</h2><br>
+    {# 创建显示虚拟机信息的Table,注意id="myTable", 后续DataTable JavaScript就对这个ID的Table进行渲染优化 #}
+    <table class="table table-bordered" id="myTable">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">名字</th>
+          <th scope="col">状态</th>
+          <th scope="col">摘要</th>
+          <th scope="col">拥有者</th>
+          <th scope="col">CPU数量</th>
+          <th scope="col">内存容量（单位G）</th>
+          <th scope="col">硬盘空间（单位G）</th>
+          <th scope="col">网卡数量</th>
+          <th scope="col">网卡速率（单位M）</th>
+          <th scope="col">全局IP地址</th>
+          <th scope="col">本地IP地址</th>
+          <th scope="col">WebConsole</th>
+          <th scope="col">操作</th>
+        </tr>
+      </thead>
+      <tbody id ="myTable">
+        {% for vm in vms_list %}
+        <tr>
+          {# 通过forloop.counter来显示行号 #}
+          <th scope="row">{{ forloop.counter }}</th>
+          <td>{{ vm.name }}</td>
+          {% if vm.status == '电源已打开' %}
+              <td style="background-color:lightskyblue"><strong><a href="/poweroff/{{ vm.name }}" onclick="return PoweroffconfirmAct();" data-placement="top" title="关闭虚拟机电源">{{ vm.status }}</a></strong></td>
+          {% elif vm.status == '电源已关闭' %}
+            <td style="background-color:yellow"><strong><a href="/poweron/{{ vm.name }}" onclick="return PoweronconfirmAct();" data-toggle="tooltip" data-placement="top" title="打开虚拟机电源">{{ vm.status }}</a></strong></td>
+          {% elif vm.status == 'UNKOWN' %}
+            <td style="background-color:gainsboro"><strong>{{ vm.status }}</strong></td>
+          {% else %}
+            <td>{{ vm.status }}</td>
+          {% endif %}
+          <td>{{ vm.summary }}</td>
+          <td>{{ vm.owner }}</td>
+          <td>{{ vm.cpu_cores }}</td>
+          <td>{{ vm.mem_G }}</td>
+          <td>{{ vm.disk_space_G }}</td>
+          <td>{{ vm.nics }}</td>
+          <td>{{ vm.nics_speed_M }}</td>
+          <td>{{ vm.global_ip }}</td>
+          <td>{{ vm.ip }}</td>
+          <td><a href="{{ vm.webconsole_url }}">访问控制台</a></td>
+          <td style="background-color:red"><strong><a href="/delete/{{ vm.name }}" onclick="return DeleteconfirmAct();" data-toggle="tooltip" data-placement="top" title="删除虚拟机">删除</a></strong></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    {# DataTable渲染显示虚拟机信息的Table #}
+    {# 需要加载如下的CSS和JS #}
+    {# <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"> #}
+    {# <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script> #}
+
+    <script>
+    $(document).ready( function () {
+        $('#myTable').DataTable();
+    } );
+    </script>
+    {# DataTable中点击任何一个条目变深色,表示被选中功能的JavaScript #}
+    <script>
+    $(document).ready(function() {
+        var table = $('#myTable').DataTable();
+
+        $('#myTable tbody').on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );
+
+        $('#button').click( function () {
+            table.row('.selected').remove().draw( false );
+        } );
+    } );
+    </script>
+        <script type="text/javascript" language="javascript">
+    <!--
+    function PoweronconfirmAct()
+    {
+        if(confirm('确定要打开虚拟机电源吗?'))
+        {
+            return true;
+        }
+        return false;
+    }
+    //-->
+    </script>
+    <script type="text/javascript" language="javascript">
+    <!--
+    function PoweroffconfirmAct()
+    {
+        if(confirm('确定要关闭虚拟机电源吗?'))
+        {
+            return true;
+        }
+        return false;
+    }
+    //-->
+    </script>    <script type="text/javascript" language="javascript">
+    <!--
+    function DeleteconfirmAct()
+    {
+        if(confirm('确定要删除此虚拟机吗?'))
+        {
+            return true;
+        }
+        return false;
+    }
+    //-->
+    </script>
+{% endblock body %}

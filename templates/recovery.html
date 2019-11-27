@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <style type="text/css">
+        .snow{
+        width: 230px;
+        height: 200px;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        }
+    </style>
+    <div class="snow">
+        <br><h2 style="color: #666666">重置云平台环境</h2><br>
+        <form action="" method="post">
+            {# CSRF跨站请求伪造#}
+            {# 添加CSRF防护的隐含参数Token,这是必须配置内容,并不是可选,注意使用render来渲染页面#}
+             <input type="hidden" name="csrfmiddlewaretoken" value="BuPkZVju5knmAuRpSZi5C3GMJh8U9IXFhPixPfQ1PDPmDZfeknt1hHREYlZkrvJZ">
+            {% csrf_token %}
+
+            {# 调整了bootstrap的显示样式 https://getbootstrap.com/docs/4.1/components/buttons/#button-tags#}
+            <input class="btn btn-primary btn-lg btn-block" type='submit' value='一键重置' onclick="return confirmAct();">
+        </form>
+    </div>
+
+    <script type="text/javascript" language="javascript">
+    <!--
+    function confirmAct()
+    {
+        if(confirm('确定要重置整个云环境吗？此次操作将会删除所有虚拟和端口组！'))
+        {
+            return true;
+        }
+        return false;
+    }
+    //-->
+    </script>
+{% endblock body %}
